@@ -9,6 +9,8 @@ var bodyParser = require('body-parser');
 var multer = require('multer');
 var mongoose = require('mongoose');
 var app = express();
+var scoreRouter = require('./routes/score');
+var Config = require('./models/Config');
 
 //connect to our database
 var dbName = 'Blackberry2048API';
@@ -18,9 +20,25 @@ mongoose.connect(connectionString);
 //setting body parser option
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
-    extended: false
+  extended: false
 }));
 
 app.use(multer());
+
+var checkAuthorization = function(req, res, next) {
+  var result = {
+    Success: false,
+    Code: -1
+  };
+  if (req.header("Auth") === Config.Key) {
+    next();
+  } else {
+    result.Success = false;
+    result.Code = 403;
+    res.json(result);
+  }
+};
+
+app.use('/API', checkAuthorization, scoreRouter);
 
 module.exports = app;
