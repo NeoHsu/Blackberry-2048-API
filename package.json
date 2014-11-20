@@ -1,0 +1,15 @@
+{
+  "name": "Blackberry_2048_API",
+  "version": "1.0.0",
+  "description": "",
+  "main": "bin/www.js",
+  "author": "Neo Hsu",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.9.2",
+    "express": "^4.10.2",
+    "mongoose": "^3.8.19",
+    "multer": "^0.1.6",
+    "validator": "^3.22.1"
+  }
+}
