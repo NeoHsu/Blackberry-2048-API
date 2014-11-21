@@ -63,7 +63,6 @@ router.route('/Score')
     };
 
     if (req.Score === null) {
-      console.log(req.Score);
       tmp = req.OriginalScore;
       tmp.create_datetime = tmp.update_datetime = new Date().getTime();
       var mScore = new Score(tmp);
@@ -80,11 +79,12 @@ router.route('/Score')
         }
         result.Success = true;
         result.Code = 200;
-        result.Message = doc;
+        // result.Message = doc;
         res.json(result);
       });
     } else {
       tmp = req.Score;
+      var db_score = req.Score.score;
       tmp.name = req.OriginalScore.name;
       tmp.score = req.OriginalScore.score;
       if (req.OriginalScore.country.length !== 0) {
@@ -93,35 +93,41 @@ router.route('/Score')
       if (req.OriginalScore.device.length !== 0) {
         tmp.device = req.OriginalScore.device;
       }
-      var update = {
-          $set: {
-            name: tmp.name,
-            score: tmp.score,
-            country: tmp.country,
-            device: tmp.device,
-            update_datetime: new Date().getTime()
+      if (tmp.score > db_score) {
+        var update = {
+            $set: {
+              name: tmp.name,
+              score: tmp.score,
+              country: tmp.country,
+              device: tmp.device,
+              update_datetime: new Date().getTime()
+            }
+          },
+          conditions = {
+            score_id: mongoose.Types.ObjectId(tmp.score_id)
+          },
+          options = {
+            upsert: true
+          };
+        Score.update(conditions, update, options, function(err, doc) {
+          // 檢查是否錯誤
+          if (err) {
+            result.Success = false;
+            result.Code = 500;
+            result.Message = err.toString();
+            res.json(result);
+          } else {
+            result.Success = true;
+            result.Code = 200;
+            // result.Message = tmp;
+            res.json(result);
           }
-        },
-        conditions = {
-          score_id: mongoose.Types.ObjectId(tmp.score_id)
-        },
-        options = {
-          upsert: true
-        };
-      Score.update(conditions, update, options, function(err, doc) {
-        // 檢查是否錯誤
-        if (err) {
-          result.Success = false;
-          result.Code = 500;
-          result.Message = err.toString();
-          res.json(result);
-        } else {
-          result.Success = true;
-          result.Code = 200;
-          result.Message = tmp;
-          res.json(result);
-        }
-      });
+        });
+      } else {
+        result.Success = true;
+        result.Code = 200;
+        res.json(result);
+      }
     }
   });
 
@@ -144,10 +150,9 @@ function checkScore(req, res, next) {
       if (err) {
         result.Success = false;
         result.Code = 500;
-        result.Message = err.toString();
+        // result.Message = err.toString();
         res.json(result);
       } else {
-        console.log(doc);
         req.Score = doc;
         next();
       }
