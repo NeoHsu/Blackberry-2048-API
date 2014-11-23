@@ -10,6 +10,7 @@ var multer = require('multer');
 var mongoose = require('mongoose');
 var app = express();
 var scoreRouter = require('./routes/score');
+var searchRouter = require('./routes/search');
 var Config = require('./models/Config');
 
 //connect to our database
@@ -40,5 +41,6 @@ var checkAuthorization = function(req, res, next) {
 };
 
 app.use('/API', checkAuthorization, scoreRouter);
+app.use('/API', checkAuthorization, searchRouter);
 
 module.exports = app;
