@@ -22,6 +22,8 @@ router.route('/Score')
     };
     Score.find({
       delete: false
+    }).sort({
+      score: -1
     }).exec(function(err, docs) {
       if (err) {
         result.Success = false;
@@ -29,16 +31,6 @@ router.route('/Score')
         result.Message = err.toString();
         res.json(result);
       } else {
-        if (docs.length > 1) {
-          docs.sort(function(a, b) {
-            if (a.score > b.score)
-              return -1;
-            if (a.score < b.score)
-              return 1;
-            return 0;
-          });
-        }
-
         if (typeof(req.query.ID) !== "undefined") {
           docs = docs.filter(function(element) {
             return (element.score_id < mongoose.Types.ObjectId(req.query.ID));
@@ -79,8 +71,9 @@ router.route('/Score')
         }
         result.Success = true;
         result.Code = 200;
-        // result.Message = doc;
+        result.Message = doc;
         res.json(result);
+
       });
     } else {
       tmp = req.Score;
@@ -144,7 +137,7 @@ function checkScore(req, res, next) {
   } else {
     req.OriginalScore = originalScore;
     Score.findOne({
-      pin: originalScore.pin,
+      bbid: originalScore.bbid,
       delete: false
     }).exec(function(err, doc) {
       if (err) {
@@ -161,6 +154,9 @@ function checkScore(req, res, next) {
 }
 
 function doVerificationObject(tmp) {
+  if (typeof(tmp.bbid) === "undefined") {
+    return null;
+  }
   if (typeof(tmp.pin) === "undefined") {
     return null;
   }
