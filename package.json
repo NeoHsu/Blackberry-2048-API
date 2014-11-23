@@ -1,6 +1,6 @@
 {
   "name": "Blackberry_2048_API",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "",
   "main": "bin/www.js",
   "author": "Neo Hsu",
