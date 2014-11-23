@@ -20,10 +20,10 @@ function arrayObjectIndexOf(myArray, searchTerm, property) {
     return -1;
   }
   // + 新增成績
-  //   [POST] /Score
-router.route('/Search/:pin')
+  //   [GET] /Search
+router.route('/Search/:bbid')
   .get(function(req, res) {
-    console.log("[GET] /Search/" + req.params.pin);
+    console.log("[GET] /Search/" + req.params.bbid);
     var result = {
       Success: false,
       Code: -1
@@ -31,7 +31,7 @@ router.route('/Search/:pin')
     Score.find({
       delete: false
     }).sort({
-      score: 1
+      score: -1
     }).exec(function(err, docs) {
       if (err) {
         result.Success = false;
@@ -39,11 +39,12 @@ router.route('/Search/:pin')
         result.Message = err.toString();
         res.json(result);
       } else {
-        var index = arrayObjectIndexOf(docs, req.params.pin.toString(), "pin");
+        var index = arrayObjectIndexOf(docs, req.params.bbid.toString(), "bbid");
         var tmp = {};
         if (index >= 0) {
           tmp.score_id = docs[index].score_id;
-          tmp.pin  = req.params.pin.toString();
+          tmp.bbid = docs[index].bbid;
+          tmp.pin  = docs[index].pin;
           tmp.rank = index + 1;
           tmp.score = docs[index].score;
           tmp.name = docs[index].name;

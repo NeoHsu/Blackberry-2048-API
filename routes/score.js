@@ -41,6 +41,7 @@ router.route('/Score')
 
         result.Success = true;
         result.Code = 200;
+        result.Message = docs;
         res.json(result);
       }
     });
