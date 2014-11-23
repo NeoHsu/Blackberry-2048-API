@@ -13,6 +13,10 @@ var scoreSchema = new Schema({
   },
   create_datetime: Number,
   update_datetime: Number,
+  bbid: {
+    type: String,
+    default: ""
+  },
   pin: {
     type: String,
     default: ""
