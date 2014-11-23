@@ -41,7 +41,6 @@ router.route('/Score')
 
         result.Success = true;
         result.Code = 200;
-        result.Message = docs;
         res.json(result);
       }
     });
@@ -71,7 +70,6 @@ router.route('/Score')
         }
         result.Success = true;
         result.Code = 200;
-        result.Message = doc;
         res.json(result);
 
       });
@@ -112,7 +110,6 @@ router.route('/Score')
           } else {
             result.Success = true;
             result.Code = 200;
-            // result.Message = tmp;
             res.json(result);
           }
         });
@@ -143,7 +140,6 @@ function checkScore(req, res, next) {
       if (err) {
         result.Success = false;
         result.Code = 500;
-        // result.Message = err.toString();
         res.json(result);
       } else {
         req.Score = doc;
