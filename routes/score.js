@@ -48,16 +48,15 @@ router.route('/Score')
   })
   .post(checkScore, function(req, res) {
     console.log("[POST] /Score");
-    var tmp = {};
     var result = {
       Success: false,
       Code: -1
     };
+    console.log(req.Score);
 
     if (req.Score === null) {
-      tmp = req.OriginalScore;
-      tmp.create_datetime = tmp.update_datetime = new Date().getTime();
-      var mScore = new Score(tmp);
+      req.OriginalScore.create_datetime = req.OriginalScore.update_datetime = new Date().getTime();
+      var mScore = new Score(req.OriginalScore);
       mScore.save(function(err, doc) {
         var result = {
           Success: false,
@@ -72,53 +71,57 @@ router.route('/Score')
         result.Success = true;
         result.Code = 200;
         res.json(result);
-
       });
     } else {
-      tmp = req.Score;
-      var db_score = req.Score.score;
-      tmp.name = req.OriginalScore.name;
-      tmp.score = req.OriginalScore.score;
-      if (req.OriginalScore.country.length !== 0) {
-        tmp.country = req.OriginalScore.country;
+      if (typeof(req.OriginalScore.name) !== "undefined" && req.OriginalScore.name !== null && req.OriginalScore.name.length > 0) {
+        req.Score.name = req.OriginalScore.name;
       }
-      if (req.OriginalScore.device.length !== 0) {
-        tmp.device = req.OriginalScore.device;
+
+      if (typeof(req.OriginalScore.score) !== "undefined" && req.OriginalScore.score !== null && req.OriginalScore.score > req.Score.score) {
+        req.Score.score = req.OriginalScore.score;
       }
-      if (tmp.score > db_score) {
-        var update = {
-            $set: {
-              name: tmp.name,
-              score: tmp.score,
-              country: tmp.country,
-              device: tmp.device,
-              update_datetime: new Date().getTime()
-            }
-          },
-          conditions = {
-            score_id: mongoose.Types.ObjectId(tmp.score_id)
-          },
-          options = {
-            upsert: true
-          };
-        Score.update(conditions, update, options, function(err, doc) {
-          // 檢查是否錯誤
-          if (err) {
-            result.Success = false;
-            result.Code = 500;
-            result.Message = err.toString();
-            res.json(result);
-          } else {
-            result.Success = true;
-            result.Code = 200;
-            res.json(result);
+
+      if (typeof(req.OriginalScore.pin) !== "undefined" && req.OriginalScore.pin !== null && req.OriginalScore.pin.length > 0) {
+        req.Score.pin = req.OriginalScore.pin;
+      }
+
+      if (typeof(req.OriginalScore.country) !== "undefined" && req.OriginalScore.country !== null && req.OriginalScore.country.length > 0) {
+        req.Score.country = req.OriginalScore.country;
+      }
+
+      if (typeof(req.OriginalScore.device) !== "undefined" && req.OriginalScore.device !== null && req.OriginalScore.device.length > 0) {
+        req.Score.device = req.OriginalScore.device;
+      }
+
+      var update = {
+          $set: {
+            update_datetime: new Date().getTime(),
+            pin: req.Score.pin,
+            name: req.Score.name,
+            score: req.Score.score,
+            country: req.Score.country,
+            device: req.Score.device
           }
-        });
-      } else {
-        result.Success = true;
-        result.Code = 200;
-        res.json(result);
-      }
+        },
+        conditions = {
+          score_id: mongoose.Types.ObjectId(req.Score.score_id)
+        },
+        options = {
+          upsert: true
+        };
+      Score.update(conditions, update, options, function(err, doc) {
+        // 檢查是否錯誤
+        if (err) {
+          result.Success = false;
+          result.Code = 500;
+          result.Message = err.toString();
+          res.json(result);
+        } else {
+          result.Success = true;
+          result.Code = 200;
+          res.json(result);
+        }
+      });
     }
   });
 
@@ -143,7 +146,11 @@ function checkScore(req, res, next) {
         result.Code = 500;
         res.json(result);
       } else {
-        req.Score = doc;
+        if (doc !== null) {
+          req.Score = doc.toObject();
+        } else {
+          req.Score = null;
+        }
         next();
       }
     });
@@ -153,21 +160,6 @@ function checkScore(req, res, next) {
 function doVerificationObject(tmp) {
   if (typeof(tmp.bbid) === "undefined") {
     return null;
-  }
-  if (typeof(tmp.pin) === "undefined") {
-    return null;
-  }
-  if (typeof(tmp.name) === "undefined") {
-    return null;
-  }
-  if (typeof(tmp.score) === "undefined") {
-    return null;
-  }
-  if (typeof(tmp.country) === "undefined") {
-    tmp.country = "";
-  }
-  if (typeof(tmp.device) === "undefined") {
-    tmp.device = "";
   }
   return tmp;
 }
