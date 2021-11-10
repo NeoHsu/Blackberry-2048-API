@@ -8,8 +8,8 @@
   "dependencies": {
     "body-parser": "^1.9.2",
     "express": "^4.10.2",
-    "mongoose": "^5.12.8",
-    "multer": "^1.4.2",
-    "validator": "^3.22.1"
+    "mongoose": "^5.13.13",
+    "multer": "^1.4.3",
+    "validator": "^13.7.0"
   }
 }
